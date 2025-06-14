@@ -23,15 +23,6 @@ This command will guide you through setting up the GitHub app and required secre
 **Note**:
 
 - You must be a repository admin to install the GitHub app and add secrets
-- This quickstart method is only available for direct Anthropic API users. If you're using AWS Bedrock, please see the instructions below.
-
-### Manual Setup (Direct API)
-
-**Requirements**: You must be a repository admin to complete these steps.
-
-1. Install the Claude GitHub app to your repository: https://github.com/apps/claude
-2. Add `ANTHROPIC_API_KEY` to your repository secrets ([Learn how to use secrets in GitHub Actions](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions))
-3. Copy the workflow file from [`examples/claude.yml`](./examples/claude.yml) into your repository's `.github/workflows/`
 
 ### OAuth Setup for Claude Max Subscribers
 
@@ -97,7 +88,6 @@ jobs:
 
 | Input                  | Description                                                                                                          | Required | Default   |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------- | -------- | --------- |
-| `anthropic_api_key`    | Anthropic API key (required for direct API, not needed for Bedrock/Vertex)                                           | No\*     | -         |
 | `direct_prompt`        | Direct prompt for Claude to execute automatically without needing a trigger (for automated workflows)                | No       | -         |
 | `max_turns`            | Maximum number of conversation turns Claude can take (limits back-and-forth exchanges)                               | No       | -         |
 | `timeout_minutes`      | Timeout in minutes for execution                                                                                     | No       | `30`      |
@@ -118,8 +108,6 @@ jobs:
 | `trigger_phrase`       | The trigger phrase to look for in comments, issue/PR bodies, and issue titles                                        | No       | `@claude` |
 | `claude_env`           | Custom environment variables to pass to Claude Code execution (YAML format)                                          | No       | ""        |
 
-\*Required when using direct Anthropic API (default and when not using Bedrock or Vertex)
-
 > **Note**: This action is currently in beta. Features and APIs may change as we continue to improve the integration.
 
 ### Using Custom MCP Configuration
@@ -131,7 +119,6 @@ The `mcp_config` input allows you to add custom MCP (Model Context Protocol) ser
 ```yaml
 - uses: anthropics/claude-code-action@beta
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     mcp_config: |
       {
         "mcpServers": {
@@ -155,7 +142,6 @@ For MCP servers that require sensitive information like API keys or tokens, use 
 ```yaml
 - uses: anthropics/claude-code-action@beta
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     mcp_config: |
       {
         "mcpServers": {
@@ -179,7 +165,6 @@ For Python-based MCP servers managed with `uv`, you need to specify the director
 ```yaml
 - uses: anthropics/claude-code-action@beta
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     mcp_config: |
       {
         "mcpServers": {
@@ -382,7 +367,6 @@ You can use the `max_turns` parameter to limit the number of back-and-forth exch
 ```yaml
 - uses: anthropics/claude-code-action@beta
   with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
     max_turns: "5" # Limit to 5 conversation turns
     # ... other inputs
 ```
@@ -450,12 +434,6 @@ For detailed setup instructions for AWS Bedrock and Google Vertex AI, see the [o
 Use provider-specific model names based on your chosen provider:
 
 ```yaml
-# For direct Anthropic API (default)
-- uses: anthropics/claude-code-action@beta
-  with:
-    anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-    # ... other inputs
-
 # For Amazon Bedrock with OIDC
 - uses: anthropics/claude-code-action@beta
   with:
@@ -547,73 +525,21 @@ The [Claude Code GitHub app](https://github.com/apps/claude) requires these perm
 
 All commits made by Claude through this action are automatically signed with commit signatures. This ensures the authenticity and integrity of commits, providing a verifiable trail of changes made by the action.
 
-### ⚠️ ANTHROPIC_API_KEY Protection
+### OAuth Token Security
 
-**CRITICAL: Never hardcode your Anthropic API key in workflow files!**
+**CRITICAL: Never hardcode your Claude OAuth credentials in workflow files.**
 
-Your ANTHROPIC_API_KEY must always be stored in GitHub secrets to prevent unauthorized access:
+Store your `CLAUDE_ACCESS_TOKEN`, `CLAUDE_REFRESH_TOKEN`, and `CLAUDE_EXPIRES_AT` values as GitHub secrets to keep them safe:
 
 ```yaml
 # CORRECT ✅
-anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+claude_access_token: ${{ secrets.CLAUDE_ACCESS_TOKEN }}
 
 # NEVER DO THIS ❌
-anthropic_api_key: "sk-ant-api03-..." # Exposed and vulnerable!
+claude_access_token: "abc123"  # Exposed and vulnerable!
 ```
 
-### Setting Up GitHub Secrets
-
-1. Go to your repository's Settings
-2. Click on "Secrets and variables" → "Actions"
-3. Click "New repository secret"
-4. Name: `ANTHROPIC_API_KEY`
-5. Value: Your Anthropic API key (starting with `sk-ant-`)
-6. Click "Add secret"
-
-### Best Practices for ANTHROPIC_API_KEY
-
-1. ✅ Always use `${{ secrets.ANTHROPIC_API_KEY }}` in workflows
-2. ✅ Never commit API keys to version control
-3. ✅ Regularly rotate your API keys
-4. ✅ Use environment secrets for organization-wide access
-5. ❌ Never share API keys in pull requests or issues
-6. ❌ Avoid logging workflow variables that might contain keys
-
-## Security Best Practices
-
-**⚠️ IMPORTANT: Never commit API keys directly to your repository! Always use GitHub Actions secrets.**
-
-To securely use your Anthropic API key:
-
-1. Add your API key as a repository secret:
-
-   - Go to your repository's Settings
-   - Navigate to "Secrets and variables" → "Actions"
-   - Click "New repository secret"
-   - Name it `ANTHROPIC_API_KEY`
-   - Paste your API key as the value
-
-2. Reference the secret in your workflow:
-   ```yaml
-   anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-   ```
-
-**Never do this:**
-
-```yaml
-# ❌ WRONG - Exposes your API key
-anthropic_api_key: "sk-ant-..."
-```
-
-**Always do this:**
-
-```yaml
-# ✅ CORRECT - Uses GitHub secrets
-anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-```
-
-This applies to all sensitive values including API keys, access tokens, and credentials.
-We also recommend that you always use short-lived tokens when possible
+Rotate your tokens periodically and avoid logging them in workflows.
 
 ## License
 
