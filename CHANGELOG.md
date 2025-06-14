@@ -7,6 +7,7 @@ This is a fork of the official Claude Code Action that adds OAuth authentication
 ### Added
 
 - **OAuth Authentication Support**: Claude Max subscribers can now use their subscription in GitHub Actions
+
   - New input: `use_oauth` - Enable OAuth authentication
   - New input: `claude_access_token` - OAuth access token from Claude Max subscription
   - New input: `claude_refresh_token` - OAuth refresh token from Claude Max subscription
@@ -39,4 +40,4 @@ This is a fork of the official Claude Code Action that adds OAuth authentication
 
 ### Compatibility
 
-This fork maintains full backward compatibility with the original action. All existing workflows will continue to work without changes. OAuth is an optional authentication method alongside the existing options (API key, Bedrock, Vertex AI).
+This fork now relies exclusively on OAuth authentication. The `anthropic_api_key` input has been removed.

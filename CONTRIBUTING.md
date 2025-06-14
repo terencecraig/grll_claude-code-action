@@ -9,7 +9,7 @@ Thank you for your interest in contributing to Claude Code Action! This document
 - [Bun](https://bun.sh/) runtime
 - [Docker](https://www.docker.com/) (for running GitHub Actions locally)
 - [act](https://github.com/nektos/act) (installed automatically by our test script)
-- An Anthropic API key (for testing)
+- Claude OAuth credentials (for testing)
 
 ### Setup
 
@@ -26,9 +26,11 @@ Thank you for your interest in contributing to Claude Code Action! This document
    bun install
    ```
 
-3. Set up your Anthropic API key:
+3. Set up your OAuth credentials:
    ```bash
-   export ANTHROPIC_API_KEY="your-api-key-here"
+   export CLAUDE_ACCESS_TOKEN="your-access-token"
+   export CLAUDE_REFRESH_TOKEN="your-refresh-token"
+   export CLAUDE_EXPIRES_AT="$(date +%s)"
    ```
 
 ## Development
@@ -60,7 +62,7 @@ Thank you for your interest in contributing to Claude Code Action! This document
 
    - Installs `act` if not present (requires Homebrew on macOS)
    - Runs the GitHub Action workflow locally using Docker
-   - Requires your `ANTHROPIC_API_KEY` to be set
+   - Requires your OAuth credentials to be set (`CLAUDE_ACCESS_TOKEN`, `CLAUDE_REFRESH_TOKEN`, `CLAUDE_EXPIRES_AT`)
 
    On Apple Silicon Macs, the script automatically adds the `--container-architecture linux/amd64` flag to avoid compatibility issues.
 
@@ -122,7 +124,10 @@ When modifying the action:
 - Check GitHub Actions logs for runtime issues
 - Use `act` with `-v` flag for verbose output:
   ```bash
-  act push -v --secret ANTHROPIC_API_KEY="$ANTHROPIC_API_KEY"
+  act push -v \
+    --secret CLAUDE_ACCESS_TOKEN="$CLAUDE_ACCESS_TOKEN" \
+    --secret CLAUDE_REFRESH_TOKEN="$CLAUDE_REFRESH_TOKEN" \
+    --secret CLAUDE_EXPIRES_AT="$CLAUDE_EXPIRES_AT"
   ```
 
 ## Common Issues
